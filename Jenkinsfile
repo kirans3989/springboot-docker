@@ -4,7 +4,7 @@ pipeline {
         maven 'maven3'
     }
     environment {
-        SCANNER_HOME = tool 'sonar-scanner'
+        SCANNER_HOME = tool 'SonarQube'
     }
     stages {
         stage('Git Checkout') {
@@ -27,18 +27,17 @@ pipeline {
                 sh 'trivy fs --format table -o fs.html .'
             }
         }
-        stage('Sonar Analysis') {
-            steps {
-                withSonarQubeEnv('sonar') {
-                    sh ''' 
-                    $SCANNER_HOME/bin/sonar-scanner \
-                    -Dsonar.projectName=taskmaster \
-                    -Dsonar.projectKey=taskmaster \
-                    -Dsonar.java.binaries=target
-                    '''
-                }
-            }
+         
+        stage('Static Code Analysis') {
+          environment {
+            SONAR_URL = "http://35.172.250.189:9000"
+          }
+      steps {
+        withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
+          sh 'cd springboot-docker && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
         }
+      }
+    }
         stage('Build Application') {
             steps {
                 sh 'mvn package'
@@ -54,7 +53,7 @@ pipeline {
         stage('Docker Build & Tag') {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                    withDockerRegistry(credentialsId: 'dockerhub', toolName: 'docker') {
                         sh 'docker build -t kiranks998/spring-boot-app:latest .'
                     }
                 }
