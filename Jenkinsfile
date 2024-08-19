@@ -45,14 +45,14 @@ pipeline {
                 sh 'mvn package'
             }
         }
-         Uncomment if needed
+        /*
         stage('Publish Artifact') {
             steps {
                 withMaven(globalMavenSettingsConfig: 'settings-maven', jdk: '', maven: 'maven3', mavenSettingsConfig: '', traceability: true) {
                     sh 'mvn deploy'
                 }
             }
-        } 
+        } */
         stage('Docker Build & Tag') {
             steps {
                 script {
@@ -62,11 +62,11 @@ pipeline {
                 }
             }
         }
-      /*  stage('Trivy Image Scan') {
+        stage('Trivy Image Scan') {
             steps {
                 sh 'trivy image --format table -o image.html kiranks998/spring-boot-app:latest'
             }
-        }*/
+        }
         stage('Docker Push') {
             steps {
                 script {
