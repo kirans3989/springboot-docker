@@ -27,23 +27,23 @@ pipeline {
                 sh 'trivy fs --format table -o fs.html .'
             }
         }
-         
         stage('Static Code Analysis') {
-          environment {
-            SONAR_URL = "http://35.172.250.189:9000"
-          }
-      steps {
-        withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-          sh 'cd springboot-docker && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
+            environment {
+                SONAR_URL = "http://35.172.250.189:9000"
+            }
+            steps {
+                withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
+                    sh 'cd springboot-docker && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
+                }
+            }
         }
-      }
-    }
         stage('Build Application') {
             steps {
                 sh 'mvn package'
             }
         }
-      /*  stage('Publish Artifact') {
+        /* Uncomment if needed
+        stage('Publish Artifact') {
             steps {
                 withMaven(globalMavenSettingsConfig: 'settings-maven', jdk: '', maven: 'maven3', mavenSettingsConfig: '', traceability: true) {
                     sh 'mvn deploy'
@@ -61,7 +61,7 @@ pipeline {
         }
         stage('Trivy Image Scan') {
             steps {
-                sh 'trivy image --format table -o image.html adijaiswal/taskmaster:latest'
+                sh 'trivy image --format table -o image.html kiranks998/spring-boot-app:latest'
             }
         }
         stage('Docker Push') {
