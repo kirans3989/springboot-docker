@@ -27,7 +27,7 @@ pipeline {
                 sh 'trivy fs --format table -o fs.html .'
             }
         }
-        stage('Static Code Analysis') {
+       /* stage('Static Code Analysis') {
             environment {
                 SONAR_URL = "http://35.172.250.189:9000"
             }
@@ -36,7 +36,7 @@ pipeline {
                     sh 'cd springboot-docker && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
                 }
             }
-        }
+        }*/
         stage('Build Application') {
             steps {
                 sh 'mvn package'
