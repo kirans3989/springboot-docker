@@ -4,7 +4,7 @@ pipeline {
         maven 'maven3'
     }
     environment {
-        SCANNER_HOME = tool 'SonarQube'
+        // SCANNER_HOME = tool 'sonarscanner'
     }
     stages {
         stage('Git Checkout') {
@@ -28,18 +28,16 @@ pipeline {
             }
         }
         
-     stage('Sonar Analysis') {
-    steps {
-        withSonarQubeEnv('SonarQube') {
-            sh '''
-            sonar-scanner \
-            -Dsonar.projectName=taskmaster \
-            -Dsonar.projectKey=taskmaster \
-            -Dsonar.java.binaries=target
-            '''
+   stage('Static Code Analysis') {
+      environment {
+        SONAR_URL = "http://34.206.53.107:9000"
+      }
+      steps {
+        withCredentials([string(credentialsId: 'sonarqube', variable: 'SonarQube-Token')]) {
+          sh 'cd springboot-docker && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
         }
+      }
     }
-}
         stage('Build Application') {
             steps {
                 sh 'mvn package'
