@@ -76,5 +76,19 @@ pipeline {
                 }
             }
         }
+
+       stage('Run Docker Container') {
+    steps {
+        script {
+            // Ensure Docker is running and accessible
+            sh 'docker --version'
+
+            // Run the Docker container
+            sh 'docker run -d -p 8090:8080 --name spring-boot-app kiranks998/spring-boot-app'
+        }
     }
 }
+        
+        }
+    }
+
