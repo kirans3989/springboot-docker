@@ -26,18 +26,19 @@ pipeline {
             }
         }
         
-   stage('Static Code Analysis') {
+  stage('Static Code Analysis') {
     environment {
         SONAR_URL = "http://35.172.250.189:9000"
     }
     steps {
-        withCredentials([string(credentialsId: 'sonarqube', variable: 'SonarQube-Token')]) {
+        withCredentials([string(credentialsId: 'sonarqube', variable: 'SONARQUBE_TOKEN')]) {
             sh 'ls -la' // List files to confirm directory structure
             sh 'pwd'    // Print working directory
             sh 'mvn sonar:sonar -Dsonar.login=$SONARQUBE_TOKEN -Dsonar.host.url=${SONAR_URL}'
         }
     }
 }
+
 
         stage('Build Application') {
             steps {
