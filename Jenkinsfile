@@ -34,7 +34,7 @@ pipeline {
         withCredentials([string(credentialsId: 'sonarqube', variable: 'SonarQube-Token')]) {
             sh 'ls -la' // List files to confirm directory structure
             sh 'pwd'    // Print working directory
-            sh 'cd springboot-docker-app && mvn sonar:sonar -Dsonar.login=$SONARQUBE_TOKEN -Dsonar.host.url=${SONAR_URL}'
+            sh 'mvn sonar:sonar -Dsonar.login=$SONARQUBE_TOKEN -Dsonar.host.url=${SONAR_URL}'
         }
     }
 }
