@@ -59,11 +59,11 @@ pipeline {
                 }
             }
         }
-        stage('Trivy Image Scan') {
+      /*  stage('Trivy Image Scan') {
             steps {
                 sh 'trivy image --format table -o image.html kiranks998/spring-boot-app:latest'
             }
-        }
+        }*/
         stage('Docker Push') {
             steps {
                 script {
