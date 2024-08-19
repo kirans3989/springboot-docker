@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Git Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/jaiswaladi246/Task-Master-Pro.git'
+                git branch: 'main', url: 'https://github.com/kirans3989/springboot-docker.git'
             }
         }
         stage('Compile') {
@@ -44,18 +44,18 @@ pipeline {
                 sh 'mvn package'
             }
         }
-        stage('Publish Artifact') {
+      /*  stage('Publish Artifact') {
             steps {
                 withMaven(globalMavenSettingsConfig: 'settings-maven', jdk: '', maven: 'maven3', mavenSettingsConfig: '', traceability: true) {
                     sh 'mvn deploy'
                 }
             }
-        }
+        } */
         stage('Docker Build & Tag') {
             steps {
                 script {
                     withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
-                        sh 'docker build -t adijaiswal/taskmaster:latest .'
+                        sh 'docker build -t kiranks998/spring-boot-app:latest .'
                     }
                 }
             }
@@ -68,8 +68,8 @@ pipeline {
         stage('Docker Push') {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
-                        sh 'docker push adijaiswal/taskmaster:latest'
+                    withDockerRegistry(credentialsId: 'dockerhub', toolName: 'docker') {
+                        sh 'docker push kiranks998/spring-boot-app:latest'
                     }
                 }
             }
