@@ -27,29 +27,32 @@ pipeline {
                 sh 'trivy fs --format table -o fs.html .'
             }
         }
-       /* stage('Static Code Analysis') {
-            environment {
-                SONAR_URL = "http://35.172.250.189:9000"
-            }
+        
+       stage('Sonar Analysis') {
             steps {
-                withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-                    sh 'cd springboot-docker && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
+                withSonarQubeEnv('sonar') {
+                    sh ''' 
+                    $SCANNER_HOME/bin/sonar-scanner \
+                    -Dsonar.projectName=taskmaster \
+                    -Dsonar.projectKey=taskmaster \
+                    -Dsonar.java.binaries=target
+                    '''
                 }
             }
-        }*/
+        }
         stage('Build Application') {
             steps {
                 sh 'mvn package'
             }
         }
-        /* Uncomment if needed
+         Uncomment if needed
         stage('Publish Artifact') {
             steps {
                 withMaven(globalMavenSettingsConfig: 'settings-maven', jdk: '', maven: 'maven3', mavenSettingsConfig: '', traceability: true) {
                     sh 'mvn deploy'
                 }
             }
-        } */
+        } 
         stage('Docker Build & Tag') {
             steps {
                 script {
