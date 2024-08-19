@@ -28,18 +28,18 @@ pipeline {
             }
         }
         
-       stage('Sonar Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh ''' 
-                    $SCANNER_HOME/bin/sonar-scanner \
-                    -Dsonar.projectName=taskmaster \
-                    -Dsonar.projectKey=taskmaster \
-                    -Dsonar.java.binaries=target
-                    '''
-                }
-            }
+     stage('Sonar Analysis') {
+    steps {
+        withSonarQubeEnv('SonarQube') {
+            sh '''
+            sonar-scanner \
+            -Dsonar.projectName=taskmaster \
+            -Dsonar.projectKey=taskmaster \
+            -Dsonar.java.binaries=target
+            '''
         }
+    }
+}
         stage('Build Application') {
             steps {
                 sh 'mvn package'
