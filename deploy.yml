@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  springbootdocker
+  labels:
+    type: backend
+    app: springbootdocker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      type: backend
+      app: springbootdocker
+  template:
+    metadata:
+      name: springbootdocker
+      labels:
+        type: backend
+        app: springbootdocker
+    spec:
+      containers:
+        - name: nodecontainer
+          image: gcr.io/gcp-dev-426803/springboot-docker-app:v1.0
+          ports:
+            - containerPort: 8080
