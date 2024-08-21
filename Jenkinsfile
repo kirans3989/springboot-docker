@@ -95,9 +95,9 @@ pipeline {
                 emailext (
                     subject: "${jobName} - Build ${buildNumber} - ${pipelineStatus.toUpperCase()}",
                     body: body,
-                    to: 'kirans3989@gmail.com',
-                    from: 'kirans3989@example.com',
-                    replyTo: 'kirans3989@example.com',
+                    to: '$DEFAULT_RECIPIENTS',
+                    from: '$DEFAULT_REPLYTO',
+                    replyTo: '$DEFAULT_REPLYTO',
                     mimeType: 'text/html',
                     attachmentsPattern: 'image.html'
                 )
