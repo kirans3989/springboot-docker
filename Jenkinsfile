@@ -96,8 +96,8 @@ pipeline {
                     subject: "${jobName} - Build ${buildNumber} - ${pipelineStatus.toUpperCase()}",
                     body: body,
                     to: 'kirans3989@gmail.com',
-                    from: 'jenkins@example.com',
-                    replyTo: 'jenkins@example.com',
+                    from: 'kirans3989@example.com',
+                    replyTo: 'kirans3989@example.com',
                     mimeType: 'text/html',
                     attachmentsPattern: 'image.html'
                 )
