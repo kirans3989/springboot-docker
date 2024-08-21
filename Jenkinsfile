@@ -25,34 +25,21 @@ pipeline {
                 sh 'trivy fs --format table -o fs.html .'
             }
         }
-        
-  stage('Static Code Analysis') {
-    environment {
-        SONAR_URL = "http://35.172.250.189:9000"
-    }
-    steps {
-        withCredentials([string(credentialsId: 'sonarqube', variable: 'SONARQUBE_TOKEN')]) {
-            sh 'ls -la' // List files to confirm directory structure
-            sh 'pwd'    // Print working directory
-            sh 'mvn sonar:sonar -Dsonar.login=$SONARQUBE_TOKEN -Dsonar.host.url=${SONAR_URL}'
+        stage('Static Code Analysis') {
+            environment {
+                SONAR_URL = "http://3.237.75.32:9000"
+            }
+            steps {
+                withCredentials([string(credentialsId: 'sonarqube', variable: 'SONARQUBE_TOKEN')]) {
+                    sh 'mvn sonar:sonar -Dsonar.login=$SONARQUBE_TOKEN -Dsonar.host.url=${SONAR_URL}'
+                }
+            }
         }
-    }
-}
-
-
         stage('Build Application') {
             steps {
                 sh 'mvn package'
             }
         }
-        /*
-        stage('Publish Artifact') {
-            steps {
-                withMaven(globalMavenSettingsConfig: 'settings-maven', jdk: '', maven: 'maven3', mavenSettingsConfig: '', traceability: true) {
-                    sh 'mvn deploy'
-                }
-            }
-        } */
         stage('Docker Build & Tag') {
             steps {
                 script {
@@ -76,19 +63,45 @@ pipeline {
                 }
             }
         }
-
-       stage('Run Docker Container') {
-    steps {
-        script {
-            // Ensure Docker is running and accessible
-            sh 'docker --version'
-
-            // Run the Docker container
-            sh 'docker run -d -p 8090:8080 --name spring-boot-app kiranks998/spring-boot-app'
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    sh 'docker run -d -p 8090:8080 --name spring-boot-app kiranks998/spring-boot-app'
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            script {
+                def jobName = env.JOB_NAME
+                def buildNumber = env.BUILD_NUMBER
+                def pipelineStatus = currentBuild.result ?: 'UNKNOWN'
+                def bannerColor = pipelineStatus.toUpperCase() == 'SUCCESS' ? 'green' : 'red'
+                def body = """
+                <html>
+                <body>
+                <div style="border: 4px solid ${bannerColor}; padding: 10px;">
+                <h2>${jobName} - Build ${buildNumber}</h2>
+                <div style="background-color: ${bannerColor}; padding: 10px;">
+                <h3 style="color: white;">Pipeline Status: ${pipelineStatus.toUpperCase()}</h3>
+                </div>
+                <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
+                </div>
+                </body>
+                </html>
+                """
+                emailext (
+                    subject: "${jobName} - Build ${buildNumber} - ${pipelineStatus.toUpperCase()}",
+                    body: body,
+                    to: 'kirans3989@gmail.com',
+                    from: 'jenkins@example.com',
+                    replyTo: 'jenkins@example.com',
+                    mimeType: 'text/html',
+                    attachmentsPattern: 'image.html'
+                )
+            }
         }
     }
 }
-        
-        }
-    }
-
