@@ -63,45 +63,79 @@ pipeline {
                 }
             }
         }
-        stage('Run Docker Container') {
+       /* stage('Run Docker Container') {
             steps {
                 script {
                     sh 'docker run -d -p 8090:8080 --name spring-boot-app kiranks998/spring-boot-app'
                 }
             }
-        }
+        } */
     }
     
-    post {
-        always {
-            script {
-                def jobName = env.JOB_NAME
-                def buildNumber = env.BUILD_NUMBER
-                def pipelineStatus = currentBuild.result ?: 'UNKNOWN'
-                def bannerColor = pipelineStatus.toUpperCase() == 'SUCCESS' ? 'green' : 'red'
-                def body = """
-                <html>
-                <body>
-                <div style="border: 4px solid ${bannerColor}; padding: 10px;">
-                <h2>${jobName} - Build ${buildNumber}</h2>
-                <div style="background-color: ${bannerColor}; padding: 10px;">
-                <h3 style="color: white;">Pipeline Status: ${pipelineStatus.toUpperCase()}</h3>
-                </div>
-                <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
-                </div>
-                </body>
-                </html>
-                """
-                emailext (
-                    subject: "${jobName} - Build ${buildNumber} - ${pipelineStatus.toUpperCase()}",
-                    body: body,
-                    to: '$DEFAULT_RECIPIENTS',
-                    from: '$DEFAULT_REPLYTO',
-                    replyTo: '$DEFAULT_REPLYTO',
-                    mimeType: 'text/html',
-                    attachmentsPattern: 'image.html'
-                )
+  post {
+    always {
+        script {
+            def jobName = env.JOB_NAME
+            def buildNumber = env.BUILD_NUMBER
+            def pipelineStatus = currentBuild.result ?: 'UNKNOWN'
+            def bannerColor = pipelineStatus.toUpperCase() == 'SUCCESS' ? 'green' : 'red'
+            
+            // Assuming you have a list of vulnerabilities with severity
+            def vulnerabilities = [
+                [library: 'apt', vulnerability: 'CVE-2011-3374', severity: 'LOW'],
+                [library: 'bash', vulnerability: 'CVE-2022-3715', severity: 'HIGH'],
+                [library: 'dpkg', vulnerability: 'CVE-2022-1664', severity: 'CRITICAL']
+                // Add more vulnerabilities as needed
+            ]
+
+            // Define severity color mapping
+            def severityColorMap = [
+                'LOW': 'yellow',
+                'MEDIUM': 'orange',
+                'HIGH': 'red',
+                'CRITICAL': 'darkred'
+            ]
+
+            // Build the vulnerability section
+            def vulnerabilitySection = "<table border='1' style='border-collapse: collapse; width: 100%;'>"
+            vulnerabilitySection += "<tr><th>Library</th><th>Vulnerability</th><th>Severity</th></tr>"
+            vulnerabilities.each { vuln ->
+                def severityColor = severityColorMap[vuln.severity] ?: 'black'
+                vulnerabilitySection += "<tr>"
+                vulnerabilitySection += "<td>${vuln.library}</td>"
+                vulnerabilitySection += "<td><a href='https://avd.aquasec.com/nvd/${vuln.vulnerability}'>${vuln.vulnerability}</a></td>"
+                vulnerabilitySection += "<td style='color: ${severityColor};'>${vuln.severity}</td>"
+                vulnerabilitySection += "</tr>"
             }
+            vulnerabilitySection += "</table>"
+
+            def body = """
+            <html>
+            <body>
+            <div style="border: 4px solid ${bannerColor}; padding: 10px;">
+            <h2>${jobName} - Build ${buildNumber}</h2>
+            <div style="background-color: ${bannerColor}; padding: 10px;">
+            <h3 style="color: white;">Pipeline Status: ${pipelineStatus.toUpperCase()}</h3>
+            </div>
+            <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
+            <h3>Vulnerability Report:</h3>
+            ${vulnerabilitySection}
+            </div>
+            </body>
+            </html>
+            """
+
+            emailext (
+                subject: "${jobName} - Build ${buildNumber} - ${pipelineStatus.toUpperCase()}",
+                body: body,
+                to: '$DEFAULT_RECIPIENTS',
+                from: '$DEFAULT_REPLYTO',
+                replyTo: '$DEFAULT_REPLYTO',
+                mimeType: 'text/html',
+                attachmentsPattern: 'image.html'
+            )
         }
     }
+}
+
 }
