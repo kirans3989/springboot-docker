@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @SpringBootApplication
 @RestController
 public class SpringbootDockerDemoApplication {
-	@GetMapping("/welcome")
+	@GetMapping("/")
 	public String welcome(){
 		return "Welcome to Spring Boot Docker Demo Application";
 	}
