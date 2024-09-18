@@ -63,13 +63,24 @@ pipeline {
                 }
             }
         }
-       /* stage('Run Docker Container') {
+        stage('Docker Scout Image') {
+            steps {
+                script{
+                   withDockerRegistry(credentialsId: 'dockerhub', toolName: 'docker'){
+                       sh 'docker-scout quickview kiranks998/spring-boot-app:latest'
+                       sh 'docker-scout cves kiranks998/spring-boot-app:latest'
+                       sh 'docker-scout recommendations kiranks998/spring-boot-app:latest'
+                   }
+                }
+            }
+        }
+        stage('Run Docker Container') {
             steps {
                 script {
                     sh 'docker run -d -p 8090:8080 --name spring-boot-app kiranks998/spring-boot-app'
                 }
             }
-        } */
+        } 
     }
     
   post {
